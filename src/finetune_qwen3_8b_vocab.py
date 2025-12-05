@@ -274,6 +274,9 @@ def prepare_model(model, tokenizer, config: FineTuneConfig, num_new_tokens: int)
 
     # Unfreeze entire embedding layers for simplicity
     embedding_layer.weight.requires_grad = True
+    mask = torch.zeros(current_vocab_size, 1)
+    mask[original_vocab_size:] = 1.0  # Unfreeze new tokens
+    embedding_layer.weight.register_hook(lambda grad: grad * mask)
 
     if output_embeddings is not None:
         output_embeddings.weight.requires_grad = True
@@ -488,6 +491,7 @@ class EmbeddingMonitorCallback(TrainerCallback):
     def on_train_begin(self, args, state, control, model=None, **kwargs):
         """Capture initial embedding state."""
         embeddings = model.get_input_embeddings().weight
+        self.fixed_embeddings = embeddings[: self.original_vocab_size].clone().detach()
         self.initial_embeddings = embeddings[self.original_vocab_size :].clone().detach()
         self.prev_embeddings = self.initial_embeddings.clone()
 
@@ -509,9 +513,16 @@ class EmbeddingMonitorCallback(TrainerCallback):
         """Monitor embedding changes and log."""
         if state.global_step % self.monitor_interval == 0 and state.global_step > 0:
             embeddings = model.get_input_embeddings().weight
+            old_embeddings = embeddings[: self.original_vocab_size]
             new_embeddings = embeddings[self.original_vocab_size :]
 
             # Calculate changes
+            change_from_fixed = (old_embeddings - self.fixed_embeddings).abs().mean().item()
+            if change_from_fixed > 1e-6:
+                logger.warning(
+                    f"⚠ Warning: Original embeddings changed during training! "
+                    f"Change from fixed: {change_from_fixed:.6f}"
+                )
             change_from_init = (new_embeddings - self.initial_embeddings).abs().mean().item()
             change_from_prev = (new_embeddings - self.prev_embeddings).abs().mean().item()
 
