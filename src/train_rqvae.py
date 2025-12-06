@@ -36,7 +36,7 @@ class RQVAEConfig:
     checkpoint_dir: Path = field(default_factory=lambda: Path("checkpoints") / "rqvae")
 
     # Model parameters
-    item_embedding_dim: int = 1024  # Input embedding dimension (e.g., Qwen3-0.6B)
+    item_embedding_dim: int = 384  # Input embedding dimension (e.g., Qwen3-0.6B)
     encoder_hidden_dims: List[int] = field(default_factory=lambda: [512, 256, 128])  # Encoder layers
     codebook_embedding_dim: int = 32  # Dimension of codebook vectors
     codebook_quantization_levels: int = 3  # Number of hierarchical levels
@@ -972,7 +972,7 @@ if __name__ == "__main__":
     device = device_manager.device
 
     run_name = f"rqvae-L{config.codebook_quantization_levels}-C{config.codebook_size}-D{config.codebook_embedding_dim}"
-    run = wandb.init(project="rqvae", name=run_name, config=config.__dict__)
+    run = wandb.init(entity="kellyweiyangwang-peking-university",project="rqvae", name=run_name, config=config.__dict__)
     config.log_config()
 
     dataset = EmbeddingDataset(str(config.embeddings_path))

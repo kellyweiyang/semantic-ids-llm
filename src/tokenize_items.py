@@ -26,9 +26,10 @@ NUM_ROWS = None  # Number of rows to process (None = all)
 DATA_DIR = Path("data")  # Data directory path
 
 # Model settings
-MODEL_NAME = "Qwen/Qwen3-Embedding-0.6B"  # HuggingFace model name
+#MODEL_NAME = "Qwen/Qwen3-Embedding-0.6B"  # HuggingFace model name
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"  # HuggingFace model name
 BATCH_SIZE = 32  # Batch size for processing
-MAX_LENGTH = 2048  # Maximum sequence length
+MAX_LENGTH = 512  # Maximum sequence length
 
 
 def get_detailed_instruct(task_description: str, query: str) -> str:

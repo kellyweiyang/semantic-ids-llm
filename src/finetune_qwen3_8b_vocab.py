@@ -32,7 +32,7 @@ class FineTuneConfig:
 
     # Model settings
     model_name: str = "unsloth/Qwen3-8B"
-    max_seq_length: int = 2048
+    max_seq_length: int = 512
     dtype: Optional[torch.dtype] = None  # None for auto detection
     load_in_4bit: bool = False  # Must be False for embedding training (quantized models can't be trained)
     load_in_8bit: bool = False
@@ -70,7 +70,6 @@ class FineTuneConfig:
 
     # Output settings
     output_dir: Path = Path("models/qwen3_8b_vocab_extended")
-    steps_per_train_log: int = 100  # Log training progress every N steps
     steps_per_val_log: int = 250  # Validate and checkpoint every N steps
     save_steps: int = 5000  # Save checkpoints during training
 

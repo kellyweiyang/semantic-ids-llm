@@ -32,9 +32,10 @@ NUM_ROWS = None  # Number of rows to process (None = all)
 DATA_DIR = Path("data")  # Data directory path
 
 # Model settings
-MODEL_NAME = "Qwen/Qwen3-Embedding-0.6B"  # HuggingFace model name
+#MODEL_NAME = "Qwen/Qwen3-Embedding-0.6B"  # HuggingFace model name
+MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"  # HuggingFace model name
 BATCH_SIZE = 64  # Batch size for processing
-TARGET_DIM = 1024  # Target embedding dimension
+TARGET_DIM = 384  # Target embedding dimension
 
 # Other settings
 VERIFY_CONSISTENCY = False  # Verify single vs batch embedding consistency
@@ -47,8 +48,10 @@ class TokenizedDataset(Dataset):
     def __init__(self, input_ids: np.ndarray, attention_mask: np.ndarray):
         """Initialize with numpy arrays and convert to pinned tensors."""
         # Convert to tensors and pin memory for faster GPU transfers
-        self.input_ids = torch.from_numpy(input_ids).pin_memory()
-        self.attention_mask = torch.from_numpy(attention_mask).pin_memory()
+        #self.input_ids = torch.from_numpy(input_ids).pin_memory()
+        #self.attention_mask = torch.from_numpy(attention_mask).pin_memory()
+        self.input_ids = torch.from_numpy(input_ids)
+        self.attention_mask = torch.from_numpy(attention_mask)
         self.length = len(input_ids)
 
     def __len__(self):
@@ -90,7 +93,7 @@ def generate_embeddings(
     model: AutoModel,
     device: str,
     pretokenized_batch: dict,
-    target_dim: int = 1024,
+    target_dim: int = 384,
 ) -> np.ndarray:
     """
     Generate embeddings for a batch of pre-tokenized inputs using last token pooling.
